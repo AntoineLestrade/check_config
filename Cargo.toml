@@ -1,0 +1,11 @@
+[package]
+name = "check_config"
+version = "0.1.0"
+authors = ["Antoine Lestrade"]
+
+[dependencies]
+ansi_term = "0.7.2"
+getopts = "0.2.14"
+lazy_static = "0.1.15"
+regex = "0.1.55"
+xml-rs = "0.3.0"
