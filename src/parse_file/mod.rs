@@ -8,7 +8,7 @@ pub struct ParseFileResult {
     pub is_good: bool,
     pub cs_name: String,
     pub server_name: String,
-    pub db_name: String
+    pub db_name: String,
 }
 
 pub enum Error {
@@ -20,15 +20,21 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Error::CannotOpenFile => { return write!(f, "Cannot open file"); }
-            Error::CannotReadFile => { return write!(f, "Cannot read file"); }
-            Error::CannotFindConnectionString => { return write!(f, "Cannot find connection string"); }
+            Error::CannotOpenFile => {
+                return write!(f, "Cannot open file");
+            }
+            Error::CannotReadFile => {
+                return write!(f, "Cannot read file");
+            }
+            Error::CannotFindConnectionString => {
+                return write!(f, "Cannot find connection string");
+            }
         }
     }
 }
 
 pub enum Parser {
-    DotNet
+    DotNet,
 }
 
 pub fn parse_file(file_path: &str, parser: Parser) -> Result<Vec<ParseFileResult>, Error> {
@@ -38,10 +44,14 @@ pub fn parse_file(file_path: &str, parser: Parser) -> Result<Vec<ParseFileResult
             match file.read_to_string(&mut string_content) {
                 Ok(_) => {
                     match parser {
-                        Parser::DotNet => { return dotnet_config::parse(&string_content); }
+                        Parser::DotNet => {
+                            return dotnet_config::parse(&string_content);
+                        }
                     }
                 }
-                Err (_) => { return Err(Error::CannotReadFile); }
+                Err(_) => {
+                    return Err(Error::CannotReadFile);
+                }
             }
         }
         Err(_) => {

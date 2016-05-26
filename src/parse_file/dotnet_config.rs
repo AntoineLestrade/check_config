@@ -8,10 +8,17 @@ use self::xml::reader::{EventReader,XmlEvent};
 pub fn parse(string_content: &String) ->
     Result<Vec<parse_file::ParseFileResult>, parse_file::Error> {
     lazy_static! {
-        static ref RE_CONNECTION_STRING: regex::Regex = regex::Regex::new("<connectionStrings(?:.*?)>([\\s\\S]*)</connectionStrings(?:.*?)>").unwrap();
+        static ref RE_CONNECTION_STRING: regex::Regex = regex::Regex::new(r"<connectionStrings(?:.*?)>([\s\S]*)</connectionStrings(?:.*?)>").unwrap();
     }
     lazy_static! {
-        static ref RE_CS_VALUE: regex::Regex = regex::Regex::new(".*data source=(.*?);.*initial catalog(.*?);.*").unwrap();
+        static ref RE_CS_VALUE: regex::Regex = regex::Regex::new(r"(?i).*data source=(.*?);.*initial catalog=(.*?);.*").unwrap();
+    }
+    lazy_static!{
+    	static ref RE_SERVER_VALUE: regex::Regex = regex::Regex::new(r"(?i)(\.|dabel69(\.corp\.altengroup\.dir)?)\\sqlexpress").unwrap();
+    }
+    
+    lazy_static!{
+    	static ref RE_WRONG_DB_NAME: regex::Regex = regex::Regex::new(r"^.*_...$").unwrap();
     }
 
     let mut result = Vec::<parse_file::ParseFileResult>::new();
@@ -40,9 +47,15 @@ pub fn parse(string_content: &String) ->
                             };
                         }
                         if let Some(val) =  RE_CS_VALUE.captures(&*buff_value) {
-                            pfr.is_good = true;
+                        	pfr.is_good = true;
                             pfr.server_name = String::from(val.at(1).unwrap());
                             pfr.db_name = String::from(val.at(2).unwrap());
+                            if !RE_SERVER_VALUE.is_match(val.at(1).unwrap()) {
+                            	pfr.is_good = false;
+                            }
+                            if RE_WRONG_DB_NAME.is_match(val.at(2).unwrap()) {
+                            	pfr.is_good = false;
+                            }
                         }
                         result.push(pfr);
 

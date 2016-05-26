@@ -1,4 +1,5 @@
-#[macro_use] extern crate lazy_static;
+#[macro_use]
+extern crate lazy_static;
 
 mod ls;
 mod parse_file;
@@ -7,7 +8,7 @@ extern crate ansi_term;
 extern crate getopts;
 extern crate regex;
 
-use ansi_term::Colour::{Red,Green,Yellow};
+use ansi_term::Colour::{Red, Green, Yellow};
 use getopts::Options;
 
 use std::env;
@@ -27,8 +28,8 @@ fn main() {
     opts.optflag("h", "help", "print this help menu");
     opts.optflag("g", "git", "Search in files versionned in git");
     let matches = match opts.parse(&args[1..]) {
-        Ok (m) => { m }
-        Err(f) => { panic!(f.to_string()) }
+        Ok(m) => m,
+        Err(f) => panic!(f.to_string()),
     };
 
     if matches.opt_present("h") || matches.free.len() != 1 {
@@ -38,37 +39,30 @@ fn main() {
 
     let path = Path::new(&matches.free[0]);
     let files = if matches.opt_present("g") {
-    		ls::list_files(&path, &regex::Regex::new(r".*\.config$").unwrap())
-    	}
-    	else {
-    		ls::list_git_files(&path, &regex::Regex::new(r".*\.config$").unwrap())
-    	};
+        ls::list_git_files(&path, &regex::Regex::new(r".*\.config$").unwrap())
+    } else {
+        ls::list_files(&path, &regex::Regex::new(r".*\.config$").unwrap())
+    };
 
     for f in files.unwrap() {
         match parse_file::parse_file(&f, parse_file::Parser::DotNet) {
-            Ok (list) => {
+            Ok(list) => {
                 for item in list {
-                    let sentence =
-                             format!("File: {}; Name: {}; Server: {}; DB: {}",
-                                                 f,
-                                                 item.cs_name,
-                                                 item.server_name,
-                                                 item.db_name);
+                    let sentence = format!("File: {}; Name: {}; Server: {}; DB: {}",
+                                           f,
+                                           item.cs_name,
+                                           item.server_name,
+                                           item.db_name);
                     if item.is_good {
                         println!("{}", Green.paint(sentence));
-                    }
-                    else {
+                    } else {
                         println!("{}", Red.paint(sentence));
                     }
                 }
             }
-            Err (err) => {
-                println!("{}",
-                         Yellow.paint(format!("File: {}; Error: {}",
-                                           f,
-                                           err)));
+            Err(err) => {
+                println!("{}", Yellow.paint(format!("File: {}; Error: {}", f, err)));
             }
         }
     }
 }
-
