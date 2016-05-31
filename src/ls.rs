@@ -10,7 +10,7 @@ pub fn list_git_files(path: &Path, re: &regex::Regex) -> Result<Vec<String>, Err
     let output = try!(Command::new("git")
         .current_dir(path)
         .arg("ls-files")
-        .arg("--full-names")
+        .arg("--full-name")
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
         .output());
