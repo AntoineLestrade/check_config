@@ -70,3 +70,63 @@ pub fn parse(string_content: &String) ->
     }
     return Ok(result);
 }
+
+#[cfg(test)]
+mod tests {
+    use parse_file::dotnet_config;
+    
+    #[test]
+    fn test_default() {
+        let content = r##"<?xml version="1.0"?>
+    <!-- 
+        Note: As an alternative to hand editing this file you can use the 
+        Web Site Administration Tool to configure settings for your application. Use
+        the Web site->Asp.Net Configuration option in Visual Studio.
+        A full list of settings and comments can be found in 
+        machine.config.comments usually located in 
+        \Windows\Microsoft.Net\Framework\v2.x\Config 
+    -->
+    <configuration xmlns="http://schemas.microsoft.com/.NetConfiguration/v2.0">
+        <appSettings/>
+        <connectionStrings>
+        <add name="SampleSqlServer" connectionString="Data Source=dabel69.corp.altengroup.dir\sqlexpress;Integrated Security=SSPI;Initial Catalog=Northwind;" />
+        </connectionStrings>
+        <system.web>
+            <!-- 
+                Set compilation debug="true" to insert debugging 
+                symbols into the compiled page. Because this 
+                affects performance, set this value to true only 
+                during development.
+            -->
+            <compilation debug="false"/>
+            <!--
+                The <authentication> section enables configuration 
+                of the security authentication mode used by 
+                ASP.NET to identify an incoming user. 
+            -->
+            <authentication mode="Windows"/>
+            <!--
+                The <customErrors> section enables configuration 
+                of what to do if/when an unhandled error occurs 
+                during the execution of a request. Specifically, 
+                it enables developers to configure html error pages 
+                to be displayed in place of a error stack trace.
+
+            <customErrors mode="RemoteOnly" defaultRedirect="GenericErrorPage.htm">
+                <error statusCode="403" redirect="NoAccess.htm"/>
+                <error statusCode="404" redirect="FileNotFound.htm"/>
+            </customErrors>
+            -->
+        </system.web>
+    </configuration>"##;
+        let result = dotnet_config::parse(&content.to_string());
+        match result {
+            Ok(_) => {
+                assert!(true);
+            }
+            Err(_) => {
+                assert!(false, "Config file is considered as wrong, it should be good");
+            }
+        }
+    }
+}
