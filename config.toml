@@ -1,0 +1,3 @@
+[default]
+regex_server_value = "(?i)(\\.|dabel69(\\.corp\\.altengroup\\.dir)?)\\\\sqlexpress"
+regex_wrong_database = "^.*_...$"

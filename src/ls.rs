@@ -6,7 +6,7 @@ use std::io::Error;
 
 pub fn list_git_files(path: &Path, re: &regex::Regex) -> Result<Vec<String>, Error> {
     let mut result: Vec<String> = Vec::<String>::new();
-
+    
     let output = try!(Command::new("git")
         .current_dir(path)
         .arg("ls-files")
@@ -22,7 +22,10 @@ pub fn list_git_files(path: &Path, re: &regex::Regex) -> Result<Vec<String>, Err
     };
 
     for p in raw_list.lines().filter(|l| re.is_match(l)) {
-        result.push(String::from(p));
+        match path.join(p).to_str() {
+            Some(str_path) => { result.push(String::from(str_path)); },
+            None => { }
+        }
     }
     return Ok(result);
 }

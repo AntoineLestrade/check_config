@@ -5,7 +5,7 @@ use parse_file;
 
 use self::xml::reader::{EventReader,XmlEvent};
 
-pub fn parse(string_content: &String) ->
+pub fn parse(string_content: &String, parsing_options: &super::super::parser_options::ParsingOptions) ->
     Result<Vec<parse_file::ParseFileResult>, parse_file::Error> {
     lazy_static! {
         static ref RE_CONNECTION_STRING: regex::Regex = regex::Regex::new(r"<connectionStrings(?:.*?)>([\s\S]*)</connectionStrings(?:.*?)>").unwrap();
@@ -13,14 +13,9 @@ pub fn parse(string_content: &String) ->
     lazy_static! {
         static ref RE_CS_VALUE: regex::Regex = regex::Regex::new(r"(?i).*data source=(.*?);.*initial catalog=(.*?);.*").unwrap();
     }
-    lazy_static!{
-    	static ref RE_SERVER_VALUE: regex::Regex = regex::Regex::new(r"(?i)(\.|dabel69(\.corp\.altengroup\.dir)?)\\sqlexpress").unwrap();
-    }
+    let re_server_value: regex::Regex = regex::Regex::new(parsing_options.regex_server_value.as_str()).unwrap();
+    let re_wrong_db_name: regex::Regex = regex::Regex::new(parsing_options.regex_wrong_database.as_str()).unwrap();
     
-    lazy_static!{
-    	static ref RE_WRONG_DB_NAME: regex::Regex = regex::Regex::new(r"^.*_...$").unwrap();
-    }
-
     let mut result = Vec::<parse_file::ParseFileResult>::new();
 
     let opt_capture = RE_CONNECTION_STRING.captures(string_content.as_str());
@@ -50,10 +45,10 @@ pub fn parse(string_content: &String) ->
                         	pfr.is_good = true;
                             pfr.server_name = String::from(val.at(1).unwrap());
                             pfr.db_name = String::from(val.at(2).unwrap());
-                            if !RE_SERVER_VALUE.is_match(val.at(1).unwrap()) {
+                            if !re_server_value.is_match(val.at(1).unwrap()) {
                             	pfr.is_good = false;
                             }
-                            if RE_WRONG_DB_NAME.is_match(val.at(2).unwrap()) {
+                            if re_wrong_db_name.is_match(val.at(2).unwrap()) {
                             	pfr.is_good = false;
                             }
                         }

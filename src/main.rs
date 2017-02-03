@@ -2,16 +2,21 @@
 extern crate lazy_static;
 
 mod ls;
+mod parser_options;
 mod parse_file;
 
 extern crate ansi_term;
 extern crate getopts;
 extern crate regex;
+extern crate rustc_serialize;
+extern crate toml;
 
 use ansi_term::Colour::{Red, Green, Yellow};
 use getopts::Options;
 
 use std::env;
+use std::fs::File;
+use std::io::prelude::*;
 use std::path::Path;
 use std::string::String;
 
@@ -38,6 +43,32 @@ fn main() {
     }
 
     let path = Path::new(&matches.free[0]);
+    
+    let mut config = String::new();
+    let parsing_opts: parser_options::ParserOptions =
+    if File::open("config.toml").and_then(|mut f| {
+        f.read_to_string(&mut config)
+    }).is_ok() {
+        let mut toml_parser = toml::Parser::new(&(config.as_str()));
+        let toml_value = match toml_parser.parse() {
+            Some(value)  => {
+                println!("found toml: {:?}", value);
+                value
+            }
+            None => {
+                panic!("Error parsing config: {:?}", toml_parser.errors);
+            }
+        };
+        toml::decode(toml::Value::Table(toml_value)).unwrap()
+    } else {
+        parser_options::ParserOptions {
+            default: parser_options::ParsingOptions {
+                regex_server_value:  r"(?i)(\.|dabel69(\.corp\.altengroup\.dir)?)\\sqlexpress".to_string(),
+                regex_wrong_database: r"^.*_...$".to_string(),
+            }
+        }
+    };
+
     let files = if matches.opt_present("g") {
         ls::list_git_files(&path, &regex::Regex::new(r".*\.config$").unwrap())
     } else {
@@ -45,7 +76,7 @@ fn main() {
     };
 
     for f in files.unwrap() {
-        match parse_file::parse_file(&f, parse_file::Parser::DotNet) {
+        match parse_file::parse_file(&f, parse_file::Parser::DotNet, &parsing_opts.default) {
             Ok(list) => {
                 for item in list {
                     let sentence = format!("File: {}; Name: {}; Server: {}; DB: {}",

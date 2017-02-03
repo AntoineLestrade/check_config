@@ -37,7 +37,7 @@ pub enum Parser {
     DotNet,
 }
 
-pub fn parse_file(file_path: &str, parser: Parser) -> Result<Vec<ParseFileResult>, Error> {
+pub fn parse_file(file_path: &str, parser: Parser, parser_options: &super::parser_options::ParsingOptions) -> Result<Vec<ParseFileResult>, Error> {
     match File::open(file_path) {
         Ok(mut file) => {
             let mut string_content = String::new();
@@ -45,7 +45,7 @@ pub fn parse_file(file_path: &str, parser: Parser) -> Result<Vec<ParseFileResult
                 Ok(_) => {
                     match parser {
                         Parser::DotNet => {
-                            return dotnet_config::parse(&string_content);
+                            return dotnet_config::parse(&string_content, parser_options);
                         }
                     }
                 }
