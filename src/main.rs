@@ -5,13 +5,13 @@ mod ls;
 mod parser_options;
 mod parse_file;
 
-extern crate ansi_term;
+extern crate term;
 extern crate getopts;
 extern crate regex;
 extern crate rustc_serialize;
 extern crate toml;
 
-use ansi_term::Colour::{Red, Green, Yellow};
+
 use getopts::Options;
 
 use std::env;
@@ -52,7 +52,6 @@ fn main() {
         let mut toml_parser = toml::Parser::new(&(config.as_str()));
         let toml_value = match toml_parser.parse() {
             Some(value)  => {
-                println!("found toml: {:?}", value);
                 value
             }
             None => {
@@ -75,25 +74,33 @@ fn main() {
         ls::list_files(&path, &regex::Regex::new(r".*\.config$").unwrap())
     };
 
+    let mut output = term::stdout().unwrap();
     for f in files.unwrap() {
         match parse_file::parse_file(&f, parse_file::Parser::DotNet, &parsing_opts.default) {
             Ok(list) => {
                 for item in list {
-                    let sentence = format!("File: {}; Name: {}; Server: {}; DB: {}",
+                    if item.is_good {
+                        output.fg(term::color::GREEN).unwrap();
+                        writeln!(output, "File: {}; Name: {}; Server: {}; DB: {}",
                                            f,
                                            item.cs_name,
                                            item.server_name,
-                                           item.db_name);
-                    if item.is_good {
-                        println!("{}", Green.paint(sentence));
+                                           item.db_name).unwrap();
                     } else {
-                        println!("{}", Red.paint(sentence));
+                        output.fg(term::color::RED).unwrap();
                     }
+                    writeln!(output, "File: {}; Name: {}; Server: {}; DB: {}",
+                                        f,
+                                        item.cs_name,
+                                        item.server_name,
+                                        item.db_name).unwrap();
                 }
             }
             Err(err) => {
-                println!("{}", Yellow.paint(format!("File: {}; Error: {}", f, err)));
+                output.fg(term::color::YELLOW).unwrap();
+                writeln!(output, "File: {}; Error: {}", f, err).unwrap();
             }
         }
     }
+    output.reset().unwrap();
 }
