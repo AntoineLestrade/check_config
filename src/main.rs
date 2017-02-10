@@ -63,7 +63,9 @@ fn main() {
         parser_options::ParserOptions {
             default: parser_options::ParsingOptions {
                 regex_server_value:  r"(?i)(\.|dabel69(\.corp\.altengroup\.dir)?)\\sqlexpress".to_string(),
-                regex_wrong_database: r"^.*_...$".to_string(),
+                regex_server_inverse: false,
+                regex_database_value: r"^.*_ALE$".to_string(),
+                regex_database_inverse: true,
             }
         }
     };

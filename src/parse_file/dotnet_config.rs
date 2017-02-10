@@ -14,7 +14,7 @@ pub fn parse(string_content: &String, parsing_options: &super::super::parser_opt
         static ref RE_CS_VALUE: regex::Regex = regex::Regex::new(r"(?i).*data source=(.*?);.*initial catalog=(.*?);.*").unwrap();
     }
     let re_server_value: regex::Regex = regex::Regex::new(parsing_options.regex_server_value.as_str()).unwrap();
-    let re_wrong_db_name: regex::Regex = regex::Regex::new(parsing_options.regex_wrong_database.as_str()).unwrap();
+    let re_db_value: regex::Regex = regex::Regex::new(parsing_options.regex_database_value.as_str()).unwrap();
     
     let mut result = Vec::<parse_file::ParseFileResult>::new();
 
@@ -45,15 +45,14 @@ pub fn parse(string_content: &String, parsing_options: &super::super::parser_opt
                         	pfr.is_good = true;
                             pfr.server_name = String::from(val.get(1).unwrap().as_str());
                             pfr.db_name = String::from(val.get(2).unwrap().as_str());
-                            if !re_server_value.is_match(val.get(1).unwrap().as_str()) {
+                            if re_server_value.is_match(val.get(1).unwrap().as_str()) != parsing_options.regex_server_inverse {
                             	pfr.is_good = false;
                             }
-                            if re_wrong_db_name.is_match(val.get(2).unwrap().as_str()) {
+                            if re_db_value.is_match(val.get(2).unwrap().as_str()) != parsing_options.regex_database_inverse {
                             	pfr.is_good = false;
                             }
                         }
                         result.push(pfr);
-
                     }
                 }
                 _ => {}

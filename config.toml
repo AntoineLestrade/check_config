@@ -1,3 +1,5 @@
 [default]
-regex_server_value = "(?i)(\\.|dabel69(\\.corp\\.altengroup\\.dir)?)\\\\sqlexpress"
-regex_wrong_database = "^.*_...$"
+regex_server_value = "(?i)(sbedev03(\\.corp\\.altengroup\\.dir)?)\\\\sqlexpress"
+regex_server_inverse = false
+regex_database_value = "^.*_ALE$"
+regex_database_inverse = true
