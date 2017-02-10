@@ -1,6 +1,3 @@
-
-
-#[allow(dead_code)]
 #[derive(RustcDecodable)]
 pub struct ParserOptions {
     pub default: ParsingOptions,

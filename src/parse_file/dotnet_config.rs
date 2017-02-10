@@ -20,7 +20,7 @@ pub fn parse(string_content: &String, parsing_options: &super::super::parser_opt
 
     let opt_capture = RE_CONNECTION_STRING.captures(string_content.as_str());
     if opt_capture.is_some() {
-        let c0 = opt_capture.unwrap().at(0).unwrap();
+        let c0 = opt_capture.unwrap().get(0).unwrap().as_str();
         let list = EventReader::from_str(c0);
         for e in list {
             match e {
@@ -43,12 +43,12 @@ pub fn parse(string_content: &String, parsing_options: &super::super::parser_opt
                         }
                         if let Some(val) =  RE_CS_VALUE.captures(&*buff_value) {
                         	pfr.is_good = true;
-                            pfr.server_name = String::from(val.at(1).unwrap());
-                            pfr.db_name = String::from(val.at(2).unwrap());
-                            if !re_server_value.is_match(val.at(1).unwrap()) {
+                            pfr.server_name = String::from(val.get(1).unwrap().as_str());
+                            pfr.db_name = String::from(val.get(2).unwrap().as_str());
+                            if !re_server_value.is_match(val.get(1).unwrap().as_str()) {
                             	pfr.is_good = false;
                             }
-                            if re_wrong_db_name.is_match(val.at(2).unwrap()) {
+                            if re_wrong_db_name.is_match(val.get(2).unwrap().as_str()) {
                             	pfr.is_good = false;
                             }
                         }
