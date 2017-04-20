@@ -1,15 +1,17 @@
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate serde_derive;
+
+extern crate term;
+extern crate getopts;
+extern crate regex;
+extern crate toml;
 
 mod ls;
 mod parser_options;
 mod parse_file;
 
-extern crate term;
-extern crate getopts;
-extern crate regex;
-extern crate rustc_serialize;
-extern crate toml;
 
 
 use getopts::Options;
@@ -49,16 +51,12 @@ fn main() {
     if File::open("config.toml").and_then(|mut f| {
         f.read_to_string(&mut config)
     }).is_ok() {
-        let mut toml_parser = toml::Parser::new(&(config.as_str()));
-        let toml_value = match toml_parser.parse() {
-            Some(value)  => {
-                value
+        match toml::de::from_str::<parser_options::ParserOptions>(config.as_str()) {
+            Ok(res) => res,
+            Err(errors) => {
+                panic!("Error parsing config file: {:?}", errors);
             }
-            None => {
-                panic!("Error parsing config: {:?}", toml_parser.errors);
-            }
-        };
-        toml::decode(toml::Value::Table(toml_value)).unwrap()
+        }
     } else {
         parser_options::ParserOptions {
             default: parser_options::ParsingOptions {
