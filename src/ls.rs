@@ -6,14 +6,14 @@ use std::io::Error;
 
 pub fn list_git_files(path: &Path, re: &regex::Regex) -> Result<Vec<String>, Error> {
     let mut result: Vec<String> = Vec::<String>::new();
-    
+
     let output = try!(Command::new("git")
-        .current_dir(path)
-        .arg("ls-files")
-        .arg("--full-name")
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .output());
+                          .current_dir(path)
+                          .arg("ls-files")
+                          .arg("--full-name")
+                          .stdout(Stdio::piped())
+                          .stderr(Stdio::null())
+                          .output());
     let raw_list = match String::from_utf8(output.stdout) {
         Ok(l) => l,
         Err(e) => {
@@ -23,8 +23,10 @@ pub fn list_git_files(path: &Path, re: &regex::Regex) -> Result<Vec<String>, Err
 
     for p in raw_list.lines().filter(|l| re.is_match(l)) {
         match path.join(p).to_str() {
-            Some(str_path) => { result.push(String::from(str_path)); },
-            None => { }
+            Some(str_path) => {
+                result.push(String::from(str_path));
+            }
+            None => {}
         }
     }
     return Ok(result);
