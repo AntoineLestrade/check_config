@@ -61,7 +61,7 @@ fn main() {
             default: parser_options::ParsingOptions {
                 regex_server_value: r"(?i)(sbedev03(\.corp\.altengroup\.dir)?)\\sqlexpress"
                     .to_string(),
-                regex_server_inverse: false,
+                regex_server_inverse: true,
                 regex_database_value: r"^.*_ALE$".to_string(),
                 regex_database_inverse: true,
             },
@@ -81,13 +81,6 @@ fn main() {
                 for item in list {
                     if item.is_good {
                         output.fg(term::color::GREEN).unwrap();
-                        writeln!(output,
-                                 "File: {}; Name: {}; Server: {}; DB: {}",
-                                 f,
-                                 item.cs_name,
-                                 item.server_name,
-                                 item.db_name)
-                                .unwrap();
                     } else {
                         output.fg(term::color::RED).unwrap();
                     }
